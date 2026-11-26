@@ -63,6 +63,7 @@ from uilib.widget import Widget
 _ARC_RADIUS = 28
 _MAX_H = 189
 _MAX_PINNED = 4
+_MAX_NARROW_LIST_ROWS = 8
 # Below this the Back/Bypass/Reset labels start to clip; a window with fewer than
 # _MAX_PINNED rings narrows to its ring row but never past this floor.
 _MIN_WINDOW_W = 240
@@ -501,7 +502,7 @@ class ParameterWindow(PluginWindow[None]):
         list_h = _ROW_H if self._is_empty() else len(self._list_params()) * _ROW_H
         btn_h = BTN_H + BTN_GAP * 2
         content_h = ring_h + list_h + btn_h
-        if n >= _MAX_PINNED:
+        if n >= _MAX_PINNED or (n == 0 and len(self._list_params()) > _MAX_NARROW_LIST_ROWS):
             w = self.WIN_W
         else:
             w = max(_MIN_WINDOW_W, min(self.WIN_W, cols * ring_wh))

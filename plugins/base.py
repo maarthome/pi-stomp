@@ -76,6 +76,8 @@ if TYPE_CHECKING:
 
 TState = TypeVar("TState")
 
+_BACK_TWEAK_ID = 2
+
 # Bypass button background when the plugin is bypassed. Shared by both children
 # via _refresh_bypass_style.
 BYPASS_ACTIVE_COLOR = (140, 50, 0)
@@ -202,6 +204,14 @@ class PluginPanel(Panel, Generic[TState], ABC):
             and event.kind is SwitchEventKind.LONGPRESS
             and event.controller.type in (ControlType.KNOB, ControlType.VOLUME)
         ):
+            return True
+        if (
+            isinstance(event, SwitchEvent)
+            and event.kind is SwitchEventKind.PRESS
+            and event.controller.type == ControlType.KNOB
+            and event.controller.id == _BACK_TWEAK_ID
+        ):
+            self._on_dismiss()
             return True
         if not isinstance(event, EncoderEvent):
             return False
