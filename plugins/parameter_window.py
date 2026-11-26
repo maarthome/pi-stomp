@@ -63,7 +63,6 @@ from uilib.widget import Widget
 _ARC_RADIUS = 28
 _MAX_H = 189
 _MAX_PINNED = 4
-_MAX_NARROW_LIST_ROWS = 8
 # Below this the Back/Bypass/Reset labels start to clip; a window with fewer than
 # _MAX_PINNED rings narrows to its ring row but never past this floor.
 _MIN_WINDOW_W = 240
@@ -451,13 +450,13 @@ class ParameterWindow(PluginWindow[None]):
     def build_slots(self) -> Sequence[PinnedParam]:
         """Return pinned slots. Override in subclasses for custom pinning.
 
-        Default: read ``pinned_params`` from customization, or heuristic
-        (first up-to-4 continuous params in sorted order).
+        Default: ``pinned_params`` from customization; a plugin that declares
+        none gets no rings, every parameter is a horizontal slider.
         """
         pinned = self.plugin.customization.pinned_params
         if pinned is not None:
             return pinned
-        return self._heuristic_slots()
+        return ()
 
     @staticmethod
     def _is_dial_enum(param: Parameter) -> bool:
@@ -502,7 +501,7 @@ class ParameterWindow(PluginWindow[None]):
         list_h = _ROW_H if self._is_empty() else len(self._list_params()) * _ROW_H
         btn_h = BTN_H + BTN_GAP * 2
         content_h = ring_h + list_h + btn_h
-        if n >= _MAX_PINNED or (n == 0 and len(self._list_params()) > _MAX_NARROW_LIST_ROWS):
+        if n >= _MAX_PINNED or n == 0:
             w = self.WIN_W
         else:
             w = max(_MIN_WINDOW_W, min(self.WIN_W, cols * ring_wh))

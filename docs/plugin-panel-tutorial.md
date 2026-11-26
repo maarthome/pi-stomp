@@ -103,9 +103,9 @@ register(
 derived from the param's unit at render time, not declared. Layout, badges,
 Tweak1 editing and LONG_CLICK reset all come from `ParameterWindow`.
 
-Declare nothing and you still get a window — a heuristic pins the first few
-continuous params. Reach for `pinned_params` when that picks wrong, or when the
-labels want to be shorter than the LV2 names.
+Declare nothing and you still get a window — every parameter is a horizontal
+slider. Reach for `pinned_params` when you want arc rings, or when the labels
+want to be shorter than the LV2 names.
 
 ---
 

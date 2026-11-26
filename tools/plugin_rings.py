@@ -18,9 +18,10 @@
 
 """Choose how a plugin's parameter window shows its parameters.
 
-    tools/plugin_rings.py "Surge XT.lv2" off     all parameters as horizontal sliders
+    tools/plugin_rings.py "Surge XT.lv2" off     all parameters as horizontal sliders (the default)
+    tools/plugin_rings.py "Surge XT.lv2" first4  first 4 parameters as arc rings, the rest sliders
     tools/plugin_rings.py "Surge XT.lv2" all     every parameter as an arc ring (scrolls)
-    tools/plugin_rings.py "Surge XT.lv2" on      default (first 4 continuous parameters as rings)
+    tools/plugin_rings.py "Surge XT.lv2" on      remove the override, back to the default
     tools/plugin_rings.py "Surge XT.lv2" status
 
 The bundle is a folder name searched in ~/.lv2 and the system LV2 folders, or a
@@ -100,7 +101,7 @@ def remove_block(text: str, uri: str) -> str:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("bundle")
-    ap.add_argument("mode", choices=["on", "off", "all", "status"])
+    ap.add_argument("mode", choices=["on", "off", "first4", "all", "status"])
     args = ap.parse_args()
 
     bundle = find_bundle(args.bundle)
@@ -112,9 +113,11 @@ def main() -> None:
         has = b in text
         if args.mode == "status":
             if not has:
-                state = "default (first 4 as rings)"
+                state = "default (all horizontal sliders)"
             elif "pinned_params=()" in text.split(b)[1].split(e)[0]:
                 state = "off (all horizontal sliders)"
+            elif text.split(b)[1].split(e)[0].count("PinnedParam(") <= 4:
+                state = "first4 (first 4 as rings)"
             else:
                 state = "all (every parameter a ring)"
             print(f"{uri}: {state}")
@@ -128,6 +131,8 @@ def main() -> None:
                 ports = control_ports(bundle)
                 if not ports:
                     sys.exit("no control ports found in the bundle's TTL files")
+                if args.mode == "first4":
+                    ports = ports[:4]
                 rows = "".join(f'        PinnedParam(Symbol("{s}"), "{n}"),\n' for s, n in ports)
                 pins = f"(\n{rows}    )"
             text = remove_block(text, uri).rstrip("\n") + "\n\n\n" + BLOCK.format(begin=b, end=e, uri=uri, pins=pins)

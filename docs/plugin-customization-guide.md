@@ -62,7 +62,7 @@ class PluginCustomization:
     tile_border: RectBorder | None = None
     extra_data: PluginExtraData | None = None
     param_roles: dict[Symbol, ParamRole] = {}          # edit-math classification
-    pinned_params: tuple[PinnedParam, ...] | None = None  # arc rings; None = heuristic
+    pinned_params: tuple[PinnedParam, ...] | None = None  # arc rings; None = no rings
     hidden_params: frozenset[Symbol] = frozenset()     # ports no UI may paint
 ```
 
@@ -146,8 +146,8 @@ register(
 ```
 
 `PinnedParam(symbol, label, display_fn=None)`. Colour is derived from the
-param's unit at render time, not declared. Declare no `pinned_params` and a
-heuristic pins the first few continuous params.
+param's unit at render time, not declared. Declare no `pinned_params` and the
+window shows every parameter as a horizontal slider.
 
 ### Hiding redundant ports
 

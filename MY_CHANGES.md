@@ -9,8 +9,9 @@ adds 48 real LV2 control ports to Surge XT for this display.
 | Change | File | Effect |
 |---|---|---|
 | Tweak 2 press = back | `plugins/base.py` (`PluginPanel.on_event`, `_BACK_TWEAK_ID`) | In any plugin screen (parameter window and the bespoke panels), pressing the Tweak 2 encoder closes it and returns to the pedal block overview. Not active outside plugin screens. NAM capture handles its own events and is not covered. |
-| Full-width parameter window | `plugins/parameter_window.py` (`_MAX_NARROW_LIST_ROWS`) | A window with no pinned rings and more than 8 list rows uses the full display width (needed for Surge XT's 48 parameters as horizontal sliders). |
-| Ring/slider choice per plugin | `tools/plugin_rings.py` | Writes a marked block in `plugins/pinned_params.py`: `off` = every parameter a horizontal slider, `all` = every parameter an arc ring (scrolls), `on` = pi-Stomp default (first 4 as rings). |
+| Horizontal sliders by default | `plugins/parameter_window.py` (`ParameterWindow.build_slots`) | A plugin without its own panel and without a hand-set `pinned_params` shows every parameter as a horizontal slider (upstream pinned the first 4 continuous parameters as arc rings). Plugins with a `panel_cls` or a `pinned_params` registration (see the list in section 3) keep their own screens. |
+| Full-width parameter window | `plugins/parameter_window.py` (`_window_size`) | A window without rings uses the full display width. |
+| Ring/slider choice per plugin | `tools/plugin_rings.py` | Writes a marked block in `plugins/pinned_params.py`: `off` = every parameter a horizontal slider (the default), `first4` = first 4 as rings, `all` = every parameter an arc ring (scrolls), `on` = remove the override. |
 | Test | `tests/v3/test_tweak2_back.py` | Tweak 2 press closes the open parameter window. |
 
 Background: a plugin's parameter list is built only from its LV2 control input ports that are also stored in the
@@ -39,9 +40,10 @@ ssh pistomp@pistomp.local "journalctl -u mod-ala-pi-stomp -f"
 ### Choose rings or sliders for a plugin
 
 ```
-python3 tools/plugin_rings.py "Surge XT.lv2" off      # all horizontal sliders
 python3 tools/plugin_rings.py "Surge XT.lv2" all      # all rings
-python3 tools/plugin_rings.py "Surge XT.lv2" on       # back to default
+python3 tools/plugin_rings.py "Surge XT.lv2" first4   # first 4 rings, rest sliders
+python3 tools/plugin_rings.py "Surge XT.lv2" off      # all horizontal sliders (default)
+python3 tools/plugin_rings.py "Surge XT.lv2" on       # remove the override
 python3 tools/plugin_rings.py "Surge XT.lv2" status
 git commit -am "Surge XT: <layout>" && git push
 ./deploy.sh
@@ -57,7 +59,17 @@ Edit `_BACK_TWEAK_ID` in `plugins/base.py` (1-3), commit, `./deploy.sh`. To disa
 
 ### Change when the window goes full width
 
-`_MAX_NARROW_LIST_ROWS` in `plugins/parameter_window.py` (default 8) and the condition in `_window_size()`.
+The condition in `_window_size()` in `plugins/parameter_window.py` (full width for no rings or 4+ rings).
+
+### Which plugins keep their own edit screens
+
+22 plugins register their own panel class (`panel_cls`): the compressors, EQs, GxCabinet, TAP Reverberator, Mixer, Notes. 22 registrations pick their rings by hand (`pinned_params`): System Compressor, Collision Drive, C* AmpVTS, BollieDelay (+XT), TAP Dynamics, TAP Chorus/Flanger, Gx Amp, Valve, Kuiza, Musical Delay, String Machine, ePiano, Degrade, CAPS Noisegate, 3 Band EQ, 3 Band Splitter, MDA MultiBand, MDA Bandisto, NAM. All other plugins use the slider default. To list them from the code:
+
+```
+grep -rn "panel_cls=\|pinned_params=" plugins | grep -v "^plugins/.*def "
+```
+
+To give another plugin rings, add a `register(URI, customization=PluginCustomization(pinned_params=(PinnedParam(Symbol("..."), "Label"), ...)))` in `plugins/pinned_params.py`, or use `tools/plugin_rings.py`.
 
 ### Take over upstream updates
 
@@ -78,5 +90,10 @@ Project rules (see `CLAUDE.md`): pyright zero errors, no `getattr`/`hasattr`, AG
 
 ### Not yet verified
 
-The tests and pyright were not run when these changes were written (no dependencies available there); run
-`uv run pytest tests/v3/test_tweak2_back.py` and `uv run pyright` once on the dev Pi.
+The tests and pyright were not run when these changes were written (no dependencies available there). Run these once on the dev Pi.
+Existing LCD snapshots of plugins that used the old ring heuristic will differ; check them and accept with `--snapshot-update`.
+
+```
+uv run pytest
+uv run pyright
+```
