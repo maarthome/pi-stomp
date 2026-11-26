@@ -456,7 +456,7 @@ class ParameterWindow(PluginWindow[None]):
         pinned = self.plugin.customization.pinned_params
         if pinned is not None:
             return pinned
-        return ()
+        return []
 
     @staticmethod
     def _is_dial_enum(param: Parameter) -> bool:
