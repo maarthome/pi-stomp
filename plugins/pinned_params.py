@@ -239,3 +239,11 @@ register(
         ),
     ),
 )
+
+
+# >>> plugin-rings:https://surge-synthesizer.github.io/lv2/surge-xt
+register(
+    "https://surge-synthesizer.github.io/lv2/surge-xt",
+    customization=PluginCustomization(pinned_params=()),
+)
+# <<< plugin-rings:https://surge-synthesizer.github.io/lv2/surge-xt
