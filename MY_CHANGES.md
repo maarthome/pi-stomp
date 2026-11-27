@@ -13,6 +13,8 @@ adds 48 real LV2 control ports to Surge XT for this display.
 | Full-width parameter window | `plugins/parameter_window.py` (`_window_size`) | A window without rings uses the full display width. |
 | Ring/slider choice per plugin | `tools/plugin_rings.py` | Writes a marked block in `plugins/pinned_params.py`: `off` = every parameter a horizontal slider (the default), `first4` = first 4 as rings, `all` = every parameter an arc ring (scrolls), `on` = remove the override. |
 | Test | `tests/v3/test_tweak2_back.py` | Tweak 2 press closes the open parameter window. |
+| Shortcircuit XT macro names | `plugins/shortcircuit_xt/__init__.py`, `PluginCustomization.param_label_fn` (`modalapi/plugin_customization.py`), `Plugin.param_label` (`modalapi/plugin.py`), `plugins/parameter_window.py`, `pistomp/lcd320x240.py` | Shortcircuit XT (`maarthome/shortcircuit-xt`) reports its 16 macro names as the patch property `#lv2-macro_names`. The parameter window, knob labels and footswitch labels show those names (e.g. "Cutoff") for the macro ports `p0`–`p15` instead of "Macro 1"; a macro without its own name keeps the port name. The name follows a rename in the panel live. Needs the Shortcircuit XT build from 27 Nov or later (`macro_names` made writable, so mod-ui caches it and replays it when pi-Stomp connects). |
+| Test | `tests/test_shortcircuit_xt.py` | Macro labels before and after the names arrive. |
 
 Background: a plugin's parameter list is built only from its LV2 control input ports that are also stored in the
 saved pedalboard. Pinned parameters (`pinned_params`) are drawn as arc rings, the rest as a scrolling list of
@@ -88,9 +90,16 @@ uv sync && uv run pytest && uv run pyright
 
 Project rules (see `CLAUDE.md`): pyright zero errors, no `getattr`/`hasattr`, AGPL header on production python files, rare short comments.
 
+### Shortcircuit XT macros: knobs, display and MIDI
+
+- Edit: open Shortcircuit XT on the pi-Stomp; the macros are in the parameter list with their names.
+- pi-Stomp knob or footswitch, or an external MIDI controller: in MOD-UI hover over the Shortcircuit XT pedal,
+  click the gear (settings), click the address button next to the macro, choose the knob, or MIDI and then
+  MIDI learn and move the controller. pi-Stomp picks up the assignment without a reload.
+
 ### Not yet verified
 
-The tests and pyright were not run when these changes were written (no dependencies available there). Run these once on the dev Pi.
+The full test suite was not run when these changes were written; pyright on the changed files is clean and `tests/test_shortcircuit_xt.py` passed in isolation (no dependencies available there). Run these once on the dev Pi.
 Existing LCD snapshots of plugins that used the old ring heuristic will differ; check them and accept with `--snapshot-update`.
 
 ```

@@ -482,7 +482,7 @@ class ParameterWindow(PluginWindow[None]):
                 continue
             if len(slots) >= _MAX_PINNED:
                 break
-            slots.append(PinnedParam(symbol=name, label=param.name, display_fn=_discrete_formatter(param)))
+            slots.append(PinnedParam(symbol=name, label=self.plugin.param_label(param), display_fn=_discrete_formatter(param)))
         return slots
 
     # ── PluginWindow contract ───────────────────────────────────────────────
@@ -580,7 +580,7 @@ class ParameterWindow(PluginWindow[None]):
             row = _ListRow(
                 box=Box.xywh(0, y, cb.width, _ROW_H),
                 symbol=name,
-                label=param.name,
+                label=self.plugin.param_label(param),
                 badge_char=self._badge_for(name),
                 owner=self,
                 font=row_font,

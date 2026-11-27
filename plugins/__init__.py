@@ -39,6 +39,7 @@ import plugins.eq.parametric  # noqa: F401  # ParametricEqPanel (ABC) + GraphWid
 import plugins.eq.graphic  # noqa: F401  # GraphicEqPanel (ABC) + BarWidget
 import plugins.fil4  # noqa: F401
 import plugins.nam  # noqa: F401
+import plugins.shortcircuit_xt  # noqa: F401
 import plugins.notes.panel  # noqa: F401
 import plugins.distaq  # noqa: F401
 import plugins.zameq2  # noqa: F401

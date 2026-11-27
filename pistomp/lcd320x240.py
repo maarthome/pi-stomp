@@ -1294,6 +1294,8 @@ class Lcd:
                         control_label_fn = self._control_label_fn(control_param)
                         if control_label_fn is not None and control_param is not None:
                             name = control_label_fn(control_param)
+                        elif control_param is not None:
+                            name = self.shorten_name(self._param_label(control_param), text_per_control)
                         else:
                             name = self.shorten_name(subtitle, text_per_control)
                         color = util.DICT_GET(v, Token.COLOR)
@@ -1406,4 +1408,7 @@ class Lcd:
 
     def _param_label(self, param: Parameter) -> str:
         fn = self._control_label_fn(param)
-        return fn(param) if fn is not None else param.name
+        if fn is not None:
+            return fn(param)
+        plugin = self.current.pedalboard.find_plugin(param.instance_id) if self.current and param.instance_id else None
+        return plugin.param_label(param) if plugin is not None else param.name

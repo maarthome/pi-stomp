@@ -88,6 +88,9 @@ class PluginCustomization:
     # Live label for a bound control (knob/footswitch/dialog title).
     control_label_fn: Callable[[Parameter], str] | None = field(default=None, compare=False, hash=False)
 
+    # Per-instance name for a parameter, e.g. from extra_data. None keeps the port name.
+    param_label_fn: Callable[[Plugin, Parameter], str | None] | None = field(default=None, compare=False, hash=False)
+
 
 class Customizer(Protocol):
     """Resolver signature used by `Pedalboard`. Always takes `uri`; the

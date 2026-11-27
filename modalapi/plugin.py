@@ -85,6 +85,11 @@ class Plugin:
             return c.display_name
         return self._heuristic_name()
 
+    def param_label(self, param: Parameter) -> str:
+        fn = self.customization.param_label_fn
+        label = fn(self, param) if fn is not None else None
+        return label or param.name
+
     def _heuristic_name(self) -> str:
         id_base = re.sub(r"_?\d+$", "", self.instance_id).lower()
         raw = self.name if len(self.name) < len(self.instance_id) or id_base in ("mono", "stereo") else self.instance_id
